@@ -3,10 +3,10 @@ function Gameboard() {
   const columns = 3;
   const board = [];
 
-  for (let i = 0; i < rows; i++) {
-    board[i] = [];
-    for (let j = 0; j < columns; j++) {
-      board[i].push(Cell());
+  for (let r = 0; r < rows; r++) {
+    board[r] = [];
+    for (let c = 0; c < columns; c++) {
+      board[c].push(Cell());
     }
   }
   
