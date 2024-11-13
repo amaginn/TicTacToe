@@ -13,11 +13,17 @@ function Gameboard() {
   const getBoard = () => board;
 
   const selectCell  = (row, column, player) => {
-    board[row][column].getValue() === '' && board[row][column].addToken(player);
+    if (board[row][column].getValue() === '') {
+      board[row][column].addToken(player);
+      return true;
+    }
+    return false;
   };
 
   const printBoard = () => {
-    board.map((row) => row.map((cell) => cell.getValue()))
+    const values = board.map((row) => row.map((cell) => cell.getValue() || ' '));
+    console.table(values);
+    return values;
   };
 
   return { getBoard, selectCell, printBoard };
@@ -68,57 +74,57 @@ function GameController(
     console.log(`${getActivePlayer().name}'s turn.`);
   };
 
-  const buttons = document.querySelectorAll('button')
   const disableButtons = () => {
+    const buttons = document.querySelectorAll('.cell');
     buttons.forEach(element => {
-        element.disabled = true
-    })
-}
+      element.disabled = true;
+    });
+  }
 
-const checkWinner = () => {
+  const checkWinner = () => {
  
-  const currentBoard = board.getBoard();
+    const currentBoard = board.getBoard();
 
-  for (let i = 0; i < currentBoard.length; i++) {
+    for (let i = 0; i < currentBoard.length; i++) {
 
-      const topLeft = currentBoard[0][0].getValue();
-      const topMiddle = currentBoard[0][1].getValue();
-      const topRight = currentBoard[0][2].getValue();
-      const middleLeft = currentBoard[1][0].getValue();
-      const middleMiddle = currentBoard[1][1].getValue();
-      const middleRight = currentBoard[1][2].getValue();
-      const bottomLeft = currentBoard[2][0].getValue();
-      const bottomMiddle = currentBoard[2][1].getValue();
-      const bottomRight = currentBoard[2][2].getValue();
+        const topLeft = currentBoard[0][0].getValue();
+        const topMiddle = currentBoard[0][1].getValue();
+        const topRight = currentBoard[0][2].getValue();
+        const middleLeft = currentBoard[1][0].getValue();
+        const middleMiddle = currentBoard[1][1].getValue();
+        const middleRight = currentBoard[1][2].getValue();
+        const bottomLeft = currentBoard[2][0].getValue();
+        const bottomMiddle = currentBoard[2][1].getValue();
+        const bottomRight = currentBoard[2][2].getValue();
 
-      if (topLeft !== '') { // checks left vertical, top hori, and left to right diag \ 
-        if (
-          (topLeft === topMiddle && topMiddle === topRight) ||
-          (topLeft === middleLeft && middleLeft === bottomLeft) ||
-          (topLeft === middleMiddle && middleMiddle === bottomRight)
-        ) {
-          return true
-        }}
-
-      if (middleMiddle !== '') { // checks cross and right to left diag /
-        if (
-          (middleMiddle === topMiddle && topMiddle === bottomMiddle) ||
-          (middleMiddle === middleLeft && middleLeft === middleRight) ||
-          (middleMiddle === topRight && topRight === bottomLeft)
-        ) {
-          return true
+        if (topLeft !== '') { // checks left vertical, top hori, and left to right diag \ 
+          if (
+            (topLeft === topMiddle && topMiddle === topRight) ||
+            (topLeft === middleLeft && middleLeft === bottomLeft) ||
+            (topLeft === middleMiddle && middleMiddle === bottomRight)
+          ) {
+            return true
           }}
 
-      if (bottomRight !== '') { // checks 
-        if (
-          (bottomRight === middleRight && middleRight === topRight) ||
-          (bottomRight === bottomMiddle && bottomMiddle === bottomLeft)
-        ) {
-          return true
-        }}
-      }
-  return false;
-} 
+        if (middleMiddle !== '') { // checks cross and right to left diag /
+          if (
+            (middleMiddle === topMiddle && topMiddle === bottomMiddle) ||
+            (middleMiddle === middleLeft && middleLeft === middleRight) ||
+            (middleMiddle === topRight && topRight === bottomLeft)
+          ) {
+            return true
+            }}
+
+        if (bottomRight !== '') { // checks 
+          if (
+            (bottomRight === middleRight && middleRight === topRight) ||
+            (bottomRight === bottomMiddle && bottomMiddle === bottomLeft)
+          ) {
+            return true
+            }}
+          }
+    return false;
+  }
 
   let counter = 0;
 
@@ -129,16 +135,18 @@ const checkWinner = () => {
     console.log(`${getActivePlayer().name} selected row ${row} column ${column}`);
 
     const move = board.selectCell(row, column, getActivePlayer().token);
-    console.log(counter);
+    console.log('count:', counter);
+    const result = checkWinner();
 
-    if (move == true) {
-      const result = checkWinner();
-      if (result == true) {
+    if (move) {
+      if (result) {
+        board.printBoard();
+        console.log("Game Over!")
         disableButtons();
-        alert("Game Over!")
-      } else if (result == true && counter == 9) {
+        return true;
+      } else if (counter == 9) {
         disableButtons();
-        alert("Tie Game!")
+        console.log("Tie Game!")
         return -1
       } else {
         switchPlayerTurn();
@@ -151,15 +159,14 @@ const checkWinner = () => {
       return false
     }
 
-    switchPlayerTurn();
-    printNewRound();
   };
   
   return {
     playRound,
     getActivePlayer,
     checkWinner,
-    getBoard: board.getBoard
+    getBoard: board.getBoard,
+    disableButtons
   };
  
 }
@@ -208,5 +215,7 @@ function ScreenController() {
   // Initial screen update
   updateScreen();
 }
+
+
 
 ScreenController();
