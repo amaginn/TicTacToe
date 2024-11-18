@@ -75,10 +75,8 @@ function GameController(
   };
 
   const disableButtons = () => {
-    const buttons = document.querySelectorAll('.cell');
-    buttons.forEach(element => {
-      element.disabled = true;
-    });
+    const boardDiv = document.querySelector('.board');
+    boardDiv.classList.add('game-over');
   }
 
   const checkWinner = () => {
@@ -129,9 +127,7 @@ function GameController(
   let counter = 0;
 
   const playRound = (row, column) => {
-
     counter++
-
     console.log(`${getActivePlayer().name} selected row ${row} column ${column}`);
 
     const move = board.selectCell(row, column, getActivePlayer().token);
@@ -141,22 +137,20 @@ function GameController(
     if (move) {
       if (result) {
         board.printBoard();
-        console.log("Game Over!")
-        disableButtons();
-        return true;
+        return {status: 'win', player: getActivePlayer().name};
       } else if (counter == 9) {
         disableButtons();
         console.log("Tie Game!")
-        return -1
+        return {status: 'tie'};
       } else {
         switchPlayerTurn();
         printNewRound();
-
+        return {status: 'continue', player: getActivePlayer().name};
       }
     } else if (move == false) {
       counter--
       printNewRound();
-      return false
+      return {status: 'invalid'};
     }
 
   };
@@ -172,20 +166,50 @@ function GameController(
 }
 
 function ScreenController() {
-  const game = GameController();
-  const playerTurnDiv = document.querySelector('.turn');
+  let game = GameController();
   const boardDiv = document.querySelector('.board');
-  
+  const playerTurnDiv = document.querySelector('.turn');
+  const startButton = document.querySelector('#start-game');
+
+  const player1Input = document.querySelector('#player1');
+  const player2Input = document.querySelector('#player2');
+
+  // Function to handle start game
+  const handleStartGame = () => {
+    const player1Name = player1Input.value || "Player One";
+    const player2Name = player2Input.value || "Player Two";
+    
+    game = GameController(player1Name, player2Name);
+    boardDiv.classList.remove('game-over');
+    playerTurnDiv.textContent = `${player1Name}'s Turn...`;
+    updateScreen();
+  };
+
+  // Click event for button
+  startButton.addEventListener('click', handleStartGame);
+
+  // Enter key events for input fields
+  player1Input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      startButton.click();
+    }
+  });
+
+  player2Input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      startButton.click();
+    }
+  });
+
   const updateScreen = () => {
-    // Clear the boardDiv before updating
     boardDiv.innerHTML = '';
     
     const board = game.getBoard();
     const activePlayer = game.getActivePlayer();
     
-    playerTurnDiv.textContent = `${activePlayer.name}'s turn...`;
 
-    // Loop through rows and columns to render cells visually
     board.forEach((row, rowIndex) => {
       row.forEach((cell, columnIndex) => {
         const cellButton = document.createElement("button");
@@ -199,21 +223,33 @@ function ScreenController() {
     });
   }
   
-  function clickHandlerBoard(e) {
-    // console.log('clickHandlerBoard invoked');
+  const clickHandlerBoard = (e) => {
     const row = e.target.dataset.row;
     const column = e.target.dataset.column;
     if (row === undefined || column === undefined) return;
     
-    game.playRound(row, column);
+    const result = game.playRound(row, column);
+    console.log('Result:', result);
+
+    if (result.status === 'win') {
+      playerTurnDiv.textContent = `${result.player} Wins!`;
+      game.disableButtons();
+    } else if (result.status === 'tie') {
+      playerTurnDiv.textContent = `Tie Game!`;
+      game.disableButtons();
+    } else if (result.status === 'continue') {
+      playerTurnDiv.textContent = `${result.player}'s Turn...`;
+    }
+
     updateScreen();
   }
   
-  // Listen for clicks on the board
+  // Store the event listener reference
   boardDiv.addEventListener("click", clickHandlerBoard);
   
   // Initial screen update
   updateScreen();
+  
 }
 
 

@@ -7,14 +7,21 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <body>
-        <div class="container">
-          <h1 class="turn"></div>
-          <div class="board"></div>
+    <div class="container">
+        <h1 class="turn">Select a square to begin!</h1>
+        <div class="board"></div>
+        <div class="player-inputs">
+            <div class="input-group">
+                <label for="player1">Player X:</label>
+                <input type="text" id="player1" placeholder="Enter name">
+            </div>
+            <div class="input-group">
+                <label for="player2">Player O:</label>
+                <input type="text" id="player2" placeholder="Enter name">
+            </div>
+            <button id="start-game">Start Game</button>
         </div>
-         <script src="script.js"></script>
-       </body>
-     
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
