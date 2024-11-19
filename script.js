@@ -22,7 +22,6 @@ function Gameboard() {
 
   const printBoard = () => {
     const values = board.map((row) => row.map((cell) => cell.getValue() || ' '));
-    console.table(values);
     return values;
   };
 
@@ -71,7 +70,6 @@ function GameController(
 
   const printNewRound = () => {
     board.printBoard();
-    console.log(`${getActivePlayer().name}'s turn.`);
   };
 
   const disableButtons = () => {
@@ -128,10 +126,8 @@ function GameController(
 
   const playRound = (row, column) => {
     counter++
-    console.log(`${getActivePlayer().name} selected row ${row} column ${column}`);
 
     const move = board.selectCell(row, column, getActivePlayer().token);
-    console.log('count:', counter);
     const result = checkWinner();
 
     if (move) {
@@ -140,7 +136,6 @@ function GameController(
         return {status: 'win', player: getActivePlayer().name};
       } else if (counter == 9) {
         disableButtons();
-        console.log("Tie Game!")
         return {status: 'tie'};
       } else {
         switchPlayerTurn();
@@ -229,7 +224,6 @@ function ScreenController() {
     if (row === undefined || column === undefined) return;
     
     const result = game.playRound(row, column);
-    console.log('Result:', result);
 
     if (result.status === 'win') {
       playerTurnDiv.textContent = `${result.player} Wins!`;
